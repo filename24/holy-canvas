@@ -1,0 +1,83 @@
+{
+	"name": "holy-canvas",
+	"version": "1.0.0",
+	"license": "AGPL-3.0-only",
+	"bin": {
+		"holy-canvas": "dist/cli.js",
+		"hcvs": "dist/cli.js"
+	},
+	"type": "module",
+	"engines": {
+		"node": ">=16"
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"package": "bash scripts/package-release.sh",
+		"test": "prettier --check . && xo && ava"
+	},
+	"files": [
+		"dist"
+	],
+	"dependencies": {
+		"commander": "^15.0.0",
+		"conf": "^15.1.0",
+		"ink": "^4.1.0",
+		"ink-text-input": "^6.0.0",
+		"react": "^18.2.0"
+	},
+	"devDependencies": {
+		"@sindresorhus/tsconfig": "^3.0.1",
+		"@types/react": "^18.0.32",
+		"@vdemedes/prettier-config": "^2.0.1",
+		"ava": "^5.2.0",
+		"chalk": "^5.2.0",
+		"eslint-config-xo-react": "^0.27.0",
+		"eslint-plugin-react": "^7.32.2",
+		"eslint-plugin-react-hooks": "^4.6.0",
+		"ink-testing-library": "^3.0.0",
+		"prettier": "^2.8.7",
+		"ts-node": "^10.9.1",
+		"typescript": "^5.0.3",
+		"xo": "^0.53.1"
+	},
+	"ava": {
+		"extensions": {
+			"ts": "module",
+			"tsx": "module"
+		},
+		"nodeArguments": [
+			"--loader=ts-node/esm"
+		]
+	},
+	"xo": {
+		"extends": "xo-react",
+		"prettier": true,
+		"rules": {
+			"react/prop-types": "off",
+			"unicorn/expiring-todo-comments": "off",
+			"unicorn/prevent-abbreviations": "off",
+			"@typescript-eslint/naming-convention": "off",
+			"no-await-in-loop": "off",
+			"@typescript-eslint/consistent-type-definitions": "off",
+			"react/prefer-read-only-props": "off",
+			"react/jsx-sort-props": "off",
+			"@typescript-eslint/ban-types": "off",
+			"import/order": "off",
+			"n/prefer-global/buffer": "off",
+			"max-params": "off",
+			"unicorn/catch-error-name": "off",
+			"unicorn/prefer-export-from": "off",
+			"@typescript-eslint/promise-function-async": "off",
+			"react/boolean-prop-naming": "off",
+			"@typescript-eslint/no-unsafe-assignment": "off",
+			"n/prefer-global/process": "off",
+			"@typescript-eslint/no-implicit-any-catch": "off",
+			"react/no-array-index-key": "off",
+			"no-negated-condition": "off",
+			"max-depth": "off",
+			"no-constant-condition": "off"
+		}
+	},
+	"prettier": "@vdemedes/prettier-config"
+}

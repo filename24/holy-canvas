@@ -1,0 +1,123 @@
+import type {Translations} from './types.js';
+
+export const es: Translations = {
+	common: {
+		loading: 'Cargando...',
+		error: 'Error',
+		backHint: 'ESC o q para volver',
+		cancel: 'Cancelar',
+		exit: 'Salir',
+		retryHint: 'Presione cualquier tecla para reintentar.',
+		continueHint: 'Presione cualquier tecla para continuar.',
+		statusActive: '[Activo]',
+	},
+	menu: {
+		title: 'holy-canvas',
+		modeSubtitle: 'Modo Terminal Interactivo',
+		connectedDomain: 'Dominio conectado',
+		unconfigured: 'No configurado',
+		itemCourses: 'Ver Cursos',
+		descCourses: 'Explorar cursos inscritos y códigos de asignatura',
+		itemGrades: 'Consultar Calificaciones',
+		descGrades: 'Ver puntuaciones actuales y calificaciones finales',
+		itemQuizzes: 'Puntuaciones de Exámenes',
+		descQuizzes: 'Revisar exámenes entregados y puntuaciones',
+		itemFiles: 'Descargar / Sincronizar Archivos',
+		descFiles:
+			'Descargar o sincronizar archivos del curso en bloque o individualmente',
+		itemLanguage: 'Ajustes de Idioma',
+		descLanguage:
+			'Cambiar idioma de visualización (inglés, coreano, español, japonés, chino)',
+		itemSetup: 'Configuración',
+		descSetup: 'Reconfigurar dominio Canvas institucional y token de API',
+		itemExit: 'Salir',
+		descExit: 'Salir de la aplicación',
+		navHint: '↑↓ Moverse · Enter Seleccionar · q Salir',
+	},
+	setup: {
+		title: 'Configuración de Canvas LMS',
+		domainPrompt: 'Ingrese el dominio Canvas de su institución:',
+		domainExample:
+			'ej. canvas.harvard.edu o https://canvas.instructure.com',
+		domainLabel: 'Dominio',
+		domainPlaceholder: 'canvas.universidad.es',
+		tokenTitle: 'Ingreso de Token de API',
+		tokenPrompt:
+			'Ingrese el token de acceso generado desde Ajustes de Canvas -> Nuevo Token de Acceso.',
+		tokenLabel: 'Token',
+		connecting: 'Conectando a',
+		successTitle: 'Configuración Exitosa!',
+		greeting: 'Hola',
+		domainSaved: 'Ajustes guardados correctamente.',
+		errorTitle: 'Error de Conexión',
+		errorRetry: 'Intente nuevamente con: holy-canvas setup (o hcvs setup)',
+		invalidToken: 'El token de API no es válido o ha expirado.',
+		apiNotFound: 'No se encontró la API de Canvas en este dominio.',
+		domainUnreachable:
+			'No se puede conectar al dominio. Verifique la URL.',
+		needSetup: 'Se requiere configuración de Canvas.',
+		runSetupHint: 'Ejecute primero: holy-canvas setup (o hcvs setup)',
+	},
+	courses: {
+		title: 'Lista de Cursos',
+		colIndex: '#',
+		colName: 'Nombre del Curso',
+		colCode: 'Código',
+		colStatus: 'Estado',
+		empty: 'No se encontraron cursos activos.',
+		loading: 'Obteniendo lista de cursos...',
+		navHint: '↑↓ Moverse · Enter Seleccionar · ESC/q Volver',
+	},
+	grades: {
+		title: 'Resumen de Calificaciones',
+		colCourse: 'Curso',
+		colCurrentScore: 'Puntuación Actual',
+		colFinalScore: 'Puntuación Final',
+		colCurrentGrade: 'Calificación Actual',
+		colFinalGrade: 'Calificación Final',
+		empty: 'No hay datos de calificaciones disponibles.',
+		loading: 'Obteniendo calificaciones...',
+	},
+	quizzes: {
+		title: 'Resultados de Exámenes',
+		colCourse: 'Curso',
+		colQuiz: 'Examen',
+		colScore: 'Puntuación',
+		colFinishedAt: 'Completado el',
+		empty: 'No se encontraron entregas de exámenes.',
+		loading: 'Obteniendo resultados de exámenes...',
+		loadingCourse: 'Cargando exámenes de',
+	},
+	files: {
+		title: 'Archivos del Curso — Seleccionar Destino',
+		subtitle:
+			'Seleccione un curso o descargue todos los archivos del curso a la vez.',
+		allCoursesOption:
+			'[Todos los Cursos] Descarga Masiva de Todos los Archivos',
+		allCoursesConfirmTitle:
+			'Confirmar Descarga de Todos los Cursos',
+		targetCoursesCount: 'Cursos de destino',
+		collectedFilesCount: 'Archivos recopilados',
+		saveLocation: 'Ubicación de guardado',
+		syncModeLabel: 'Modo de sincronización',
+		syncModeOn:
+			'[ON] Descargar solo archivos nuevos y modificados (Recomendado)',
+		syncModeOff: '[OFF] Volver a descargar todos los archivos (Sobrescribir)',
+		confirmNavHint:
+			'Espacio/s: Alternar Sincronización · Enter/d: Iniciar Descarga · ESC/q: Cancelar',
+		selectFilesTitle: 'Seleccionar Archivos',
+		selectFilesNavHint:
+			'↑↓/RePág/AvPág Moverse · Espacio Seleccionar · a Seleccionar Todo · s Sincronizar · Enter/d Descargar · ESC Volver',
+		loadingAllFiles: 'Buscando archivos en todos los cursos...',
+		downloadingTitle: 'Descargando archivos...',
+		downloadComplete: 'Descarga Completada!',
+		filesSavedIn: 'archivos guardados en',
+		moreAbove: 'archivo(s) más arriba (RePág)',
+		moreBelow: 'archivo(s) más abajo (AvPág)',
+	},
+	language: {
+		title: 'Seleccionar Idioma de Visualización',
+		selectPrompt: 'Elija su idioma preferido:',
+		saved: 'Idioma actualizado correctamente.',
+	},
+};
