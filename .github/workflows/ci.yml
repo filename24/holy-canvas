@@ -45,6 +45,14 @@ jobs:
       - name: Build TypeScript
         run: pnpm build
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Test Bun bundle
+        run: bun run scripts/build.ts
+
   release:
     name: Build & Publish Release
     needs: test
@@ -67,6 +75,11 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile

@@ -89,76 +89,106 @@ log_info "Detected Platform: ${OS}-${ARCH}"
 # 3. Create target directory structure
 APP_DIR="${INSTALL_DIR}/app"
 RUNTIME_DIR="${INSTALL_DIR}/runtime"
-mkdir -p "${INSTALL_DIR}" "${APP_DIR}" "${RUNTIME_DIR}/bin" "${BIN_DIR}"
+mkdir -p "${INSTALL_DIR}" "${INSTALL_DIR}/bin" "${BIN_DIR}"
 
-# 4. Check & Install Isolated Portable Node Runtime if not present
-NODE_BIN="${RUNTIME_DIR}/bin/node"
-
-if [ ! -x "${NODE_BIN}" ]; then
-    log_info "Setting up isolated portable Node.js runtime (${NODE_VERSION}) in ${RUNTIME_DIR}..."
-    NODE_TARBALL="node-${NODE_VERSION}-${OS}-${ARCH}.tar.gz"
-    NODE_URL="https://nodejs.org/dist/${NODE_VERSION}/${NODE_TARBALL}"
-
-    TMP_DIR="$(mktemp -d)"
-    trap 'rm -rf "${TMP_DIR}"' EXIT
-
-    log_info "Downloading portable runtime from ${NODE_URL}..."
-    if command -v curl >/dev/null 2>&1; then
-        curl -fsSL "${NODE_URL}" -o "${TMP_DIR}/${NODE_TARBALL}"
-    elif command -v wget >/dev/null 2>&1; then
-        wget -qO "${TMP_DIR}/${NODE_TARBALL}" "${NODE_URL}"
-    else
-        log_error "Neither curl nor wget was found on the system. Please install curl or wget."
-        exit 1
-    fi
-
-    log_info "Extracting runtime..."
-    tar -xzf "${TMP_DIR}/${NODE_TARBALL}" -C "${RUNTIME_DIR}" --strip-components=1
-    chmod +x "${RUNTIME_DIR}/bin/node"
-    log_success "Portable Node runtime ready (completely isolated, no global changes)."
-fi
-
-# 5. Install Application Files
+# 4. Check if running locally inside the holy-canvas source repository
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 && pwd || echo "")"
 IS_LOCAL=0
+REPO_ROOT=""
 
-# Check if running locally inside the holy-canvas source repository
-if [ -n "${SCRIPT_DIR}" ] && [ -f "${SCRIPT_DIR}/../package.json" ] && [ -d "${SCRIPT_DIR}/../dist" ]; then
-    REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-    if grep -q '"name": "holy-canvas"' "${REPO_ROOT}/package.json" 2>/dev/null; then
+if [ -n "${SCRIPT_DIR}" ] && [ -f "${SCRIPT_DIR}/../package.json" ]; then
+    CANDIDATE_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+    if grep -q '"name": "holy-canvas"' "${CANDIDATE_ROOT}/package.json" 2>/dev/null; then
         IS_LOCAL=1
+        REPO_ROOT="${CANDIDATE_ROOT}"
     fi
 fi
 
-if [ "${IS_LOCAL}" -eq 1 ]; then
-    log_info "Installing from local repository at ${REPO_ROOT}..."
-    cp -r "${REPO_ROOT}/dist" "${APP_DIR}/"
-    cp "${REPO_ROOT}/package.json" "${APP_DIR}/"
+STANDALONE_READY=0
 
-    log_info "Installing standalone production dependencies using portable runtime..."
-    "${RUNTIME_DIR}/bin/npm" install --prefix "${APP_DIR}" --omit=dev --legacy-peer-deps --no-audit --no-fund --loglevel=error
-else
-    # Remote install: Check for pre-built release package first
-    RELEASE_URL="https://github.com/${REPO}/releases/latest/download/holy-canvas-${OS}-${ARCH}.tar.gz"
-    DOWNLOADED=0
-
+# 5. Check for pre-built standalone binary (Compiled with Bun)
+if [ "${IS_LOCAL}" -eq 1 ] && [ -f "${REPO_ROOT}/release/holy-canvas-${OS}-${ARCH}" ]; then
+    log_info "Installing standalone binary from local repository..."
+    cp "${REPO_ROOT}/release/holy-canvas-${OS}-${ARCH}" "${INSTALL_DIR}/bin/holy-canvas"
+    chmod +x "${INSTALL_DIR}/bin/holy-canvas"
+    ln -sf "holy-canvas" "${INSTALL_DIR}/bin/hcvs"
+    STANDALONE_READY=1
+elif [ "${IS_LOCAL}" -eq 0 ]; then
+    RELEASE_TAR_URL="https://github.com/${REPO}/releases/latest/download/holy-canvas-${OS}-${ARCH}.tar.gz"
+    RELEASE_BIN_URL="https://github.com/${REPO}/releases/latest/download/holy-canvas-${OS}-${ARCH}"
     TMP_ARCHIVE="$(mktemp)"
-    log_info "Checking for pre-built release package..."
+
+    log_info "Checking for pre-built standalone release from GitHub CI..."
     if command -v curl >/dev/null 2>&1; then
-        if curl -fsSL -I "${RELEASE_URL}" >/dev/null 2>&1; then
-            log_info "Downloading pre-built release from ${RELEASE_URL}..."
-            curl -fsSL "${RELEASE_URL}" -o "${TMP_ARCHIVE}"
+        if curl -fsSL "${RELEASE_TAR_URL}" -o "${TMP_ARCHIVE}" 2>/dev/null; then
+            log_info "Extracting standalone release package..."
             tar -xzf "${TMP_ARCHIVE}" -C "${INSTALL_DIR}"
-            DOWNLOADED=1
+            chmod +x "${INSTALL_DIR}/bin/holy-canvas"
+            ln -sf "holy-canvas" "${INSTALL_DIR}/bin/hcvs"
+            STANDALONE_READY=1
+            log_success "Standalone release package extracted successfully."
+        elif curl -fsSL "${RELEASE_BIN_URL}" -o "${INSTALL_DIR}/bin/holy-canvas" 2>/dev/null; then
+            chmod +x "${INSTALL_DIR}/bin/holy-canvas"
+            ln -sf "holy-canvas" "${INSTALL_DIR}/bin/hcvs"
+            STANDALONE_READY=1
+            log_success "Standalone executable downloaded successfully."
+        fi
+    elif command -v wget >/dev/null 2>&1; then
+        if wget -qO "${TMP_ARCHIVE}" "${RELEASE_TAR_URL}" 2>/dev/null; then
+            tar -xzf "${TMP_ARCHIVE}" -C "${INSTALL_DIR}"
+            chmod +x "${INSTALL_DIR}/bin/holy-canvas"
+            ln -sf "holy-canvas" "${INSTALL_DIR}/bin/hcvs"
+            STANDALONE_READY=1
+            log_success "Standalone release package extracted successfully."
+        elif wget -qO "${INSTALL_DIR}/bin/holy-canvas" "${RELEASE_BIN_URL}" 2>/dev/null; then
+            chmod +x "${INSTALL_DIR}/bin/holy-canvas"
+            ln -sf "holy-canvas" "${INSTALL_DIR}/bin/hcvs"
+            STANDALONE_READY=1
+            log_success "Standalone executable downloaded successfully."
         fi
     fi
+    rm -f "${TMP_ARCHIVE}"
+fi
 
-    if [ "${DOWNLOADED}" -eq 0 ]; then
-        # Fallback: Download repository archive and build with portable runtime
+# 6. Fallback: Portable Node.js runtime if standalone release is not found
+if [ "${STANDALONE_READY}" -eq 0 ]; then
+    mkdir -p "${APP_DIR}" "${RUNTIME_DIR}/bin"
+    NODE_BIN="${RUNTIME_DIR}/bin/node"
+
+    if [ ! -x "${NODE_BIN}" ]; then
+        log_info "Setting up isolated portable Node.js runtime (${NODE_VERSION}) in ${RUNTIME_DIR}..."
+        NODE_TARBALL="node-${NODE_VERSION}-${OS}-${ARCH}.tar.gz"
+        NODE_URL="https://nodejs.org/dist/${NODE_VERSION}/${NODE_TARBALL}"
+
+        TMP_DIR="$(mktemp -d)"
+        log_info "Downloading portable runtime from ${NODE_URL}..."
+        if command -v curl >/dev/null 2>&1; then
+            curl -fsSL "${NODE_URL}" -o "${TMP_DIR}/${NODE_TARBALL}"
+        elif command -v wget >/dev/null 2>&1; then
+            wget -qO "${TMP_DIR}/${NODE_TARBALL}" "${NODE_URL}"
+        else
+            log_error "Neither curl nor wget was found on the system. Please install curl or wget."
+            exit 1
+        fi
+
+        log_info "Extracting runtime..."
+        tar -xzf "${TMP_DIR}/${NODE_TARBALL}" -C "${RUNTIME_DIR}" --strip-components=1
+        chmod +x "${RUNTIME_DIR}/bin/node"
+        rm -rf "${TMP_DIR}"
+        log_success "Portable Node runtime ready."
+    fi
+
+    if [ "${IS_LOCAL}" -eq 1 ]; then
+        log_info "Installing from local repository at ${REPO_ROOT}..."
+        cp -r "${REPO_ROOT}/dist" "${APP_DIR}/"
+        cp "${REPO_ROOT}/package.json" "${APP_DIR}/"
+        log_info "Installing dependencies..."
+        "${RUNTIME_DIR}/bin/npm" install --prefix "${APP_DIR}" --omit=dev --legacy-peer-deps --no-audit --no-fund --loglevel=error
+    else
         log_info "Fetching latest code from GitHub (${REPO})..."
         REPO_TAR_URL="https://github.com/${REPO}/archive/refs/heads/${BRANCH}.tar.gz"
         TMP_SRC_DIR="$(mktemp -d)"
-        
+
         if command -v curl >/dev/null 2>&1; then
             curl -fsSL "${REPO_TAR_URL}" | tar -xz -C "${TMP_SRC_DIR}" --strip-components=1
         elif command -v wget >/dev/null 2>&1; then
@@ -168,19 +198,13 @@ else
         log_info "Deploying application files..."
         cp -r "${TMP_SRC_DIR}/dist" "${APP_DIR}/"
         cp "${TMP_SRC_DIR}/package.json" "${APP_DIR}/"
-
-        log_info "Installing production dependencies with portable runtime..."
+        log_info "Installing dependencies..."
         "${RUNTIME_DIR}/bin/npm" install --prefix "${APP_DIR}" --omit=dev --legacy-peer-deps --no-audit --no-fund --loglevel=error
         rm -rf "${TMP_SRC_DIR}"
     fi
-    rm -f "${TMP_ARCHIVE}"
-fi
 
-# 6. Generate Launcher Scripts
-LAUNCHER_WRAPPER="${INSTALL_DIR}/bin/holy-canvas"
-mkdir -p "${INSTALL_DIR}/bin"
-
-cat > "${LAUNCHER_WRAPPER}" << 'EOF'
+    LAUNCHER_WRAPPER="${INSTALL_DIR}/bin/holy-canvas"
+    cat > "${LAUNCHER_WRAPPER}" << 'EOF'
 #!/usr/bin/env bash
 SELF_DIR="$(cd "$(dirname "$0")"/.. && pwd)"
 NODE_BIN="${SELF_DIR}/runtime/bin/node"
@@ -197,20 +221,18 @@ fi
 
 exec "${NODE_BIN}" "${CLI_SCRIPT}" "$@"
 EOF
-
-chmod +x "${LAUNCHER_WRAPPER}"
-
-# Create secondary binary alias 'hcvs' in INSTALL_DIR/bin
-ln -sf "holy-canvas" "${INSTALL_DIR}/bin/hcvs"
-
-# Create symlinks or wrappers in user BIN_DIR (~/.local/bin) if different from INSTALL_DIR/bin
-if [ "${BIN_DIR}" != "${INSTALL_DIR}/bin" ]; then
-    mkdir -p "${BIN_DIR}"
-    ln -sf "${LAUNCHER_WRAPPER}" "${BIN_DIR}/holy-canvas"
-    ln -sf "${LAUNCHER_WRAPPER}" "${BIN_DIR}/hcvs"
+    chmod +x "${LAUNCHER_WRAPPER}"
+    ln -sf "holy-canvas" "${INSTALL_DIR}/bin/hcvs"
 fi
 
-# 7. Configure PATH if necessary
+# 7. Create symlinks in user BIN_DIR (~/.local/bin) if different from INSTALL_DIR/bin
+if [ "${BIN_DIR}" != "${INSTALL_DIR}/bin" ]; then
+    mkdir -p "${BIN_DIR}"
+    ln -sf "${INSTALL_DIR}/bin/holy-canvas" "${BIN_DIR}/holy-canvas"
+    ln -sf "${INSTALL_DIR}/bin/hcvs" "${BIN_DIR}/hcvs"
+fi
+
+# 8. Configure PATH if necessary
 PATH_UPDATED=0
 case ":${PATH}:" in
     *":${BIN_DIR}:"*) ;;

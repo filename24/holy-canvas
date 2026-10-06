@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# holy-canvas (hcvs) - Standalone Release Packager
-# Builds self-contained standalone binary release archives (Linux, Windows, macOS)
+# holy-canvas (hcvs) - Standalone Release Packager (Powered by Bun)
+# Compiles self-contained standalone binary releases for Linux, Windows, macOS
 # ==============================================================================
 
 set -euo pipefail
 
-NODE_VERSION="${HOLY_CANVAS_NODE_VERSION:-"v20.18.3"}"
 OUTPUT_DIR="release"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -14,81 +13,54 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 cd "${REPO_ROOT}"
 
-echo "[INFO] Building holy-canvas typescript files..."
-pnpm build
+BUN_BIN="$(command -v bun || true)"
+if [ -z "${BUN_BIN}" ] && [ -x "$HOME/.bun/bin/bun" ]; then
+    BUN_BIN="$HOME/.bun/bin/bun"
+fi
+
+if [ -z "${BUN_BIN}" ]; then
+    echo "[INFO] Installing Bun..."
+    curl -fsSL https://bun.sh/install | bash
+    BUN_BIN="$HOME/.bun/bin/bun"
+fi
+
+echo "[INFO] Using Bun binary at: ${BUN_BIN}"
+"${BUN_BIN}" --version
 
 mkdir -p "${OUTPUT_DIR}"
 
-# Prepare temporary application bundle (dist + package.json + production node_modules)
-TMP_BUILD="$(mktemp -d)"
-trap 'rm -rf "${TMP_BUILD}"' EXIT
+# 1. Compile standalone native executables for all platforms using Bun
+echo "[INFO] Compiling standalone cross-platform executables with Bun..."
+"${BUN_BIN}" run scripts/build.ts --compile
 
-echo "[INFO] Creating clean production bundle in temporary directory..."
-mkdir -p "${TMP_BUILD}/app"
-cp -r dist "${TMP_BUILD}/app/"
-cp package.json "${TMP_BUILD}/app/"
-
-(cd "${TMP_BUILD}/app" && pnpm install --prod --ignore-scripts)
-
-TARGETS=(
-    "linux-x64:tar.gz"
-    "linux-arm64:tar.gz"
-    "darwin-x64:tar.gz"
-    "darwin-arm64:tar.gz"
-    "win-x64:zip"
-    "win-arm64:zip"
-)
-
-for ENTRY in "${TARGETS[@]}"; do
-    PLATFORM="${ENTRY%%:*}"
-    FORMAT="${ENTRY##*:}"
-
-    ARCHIVE_NAME="holy-canvas-${PLATFORM}.${FORMAT}"
-    echo "[INFO] Building ${ARCHIVE_NAME}..."
-
-    TARGET_STAGE="$(mktemp -d)"
-    mkdir -p "${TARGET_STAGE}/app" "${TARGET_STAGE}/bin" "${TARGET_STAGE}/runtime"
-
-    cp -r "${TMP_BUILD}/app/"* "${TARGET_STAGE}/app/"
-
-    if [[ "${PLATFORM}" == win* ]]; then
-        ARCH="${PLATFORM#win-}"
-        # Download Windows node.exe
-        curl -fsSL "https://nodejs.org/dist/${NODE_VERSION}/win-${ARCH}/node.exe" -o "${TARGET_STAGE}/runtime/node.exe"
-
-        # Launcher batch & powershell scripts
-        cat > "${TARGET_STAGE}/bin/holy-canvas.cmd" << 'EOF'
-@echo off
-setlocal
-set "ROOT_DIR=%~dp0.."
-set "NODE_EXE=%ROOT_DIR%\runtime\node.exe"
-if not exist "%NODE_EXE%" (set "NODE_EXE=node")
-"%NODE_EXE%" "%ROOT_DIR%\app\dist\cli.js" %*
-EOF
-        cp "${TARGET_STAGE}/bin/holy-canvas.cmd" "${TARGET_STAGE}/bin/hcvs.cmd"
-
-        (cd "${TARGET_STAGE}" && zip -qr "${REPO_ROOT}/${OUTPUT_DIR}/${ARCHIVE_NAME}" .)
-    else
-        # Download Unix node binary
-        curl -fsSL "https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-${PLATFORM}.tar.gz" | \
-            tar -xz -C "${TARGET_STAGE}/runtime" --strip-components=1 node-${NODE_VERSION}-${PLATFORM}/bin/node
-
-        # Launcher bash script
-        cat > "${TARGET_STAGE}/bin/holy-canvas" << 'EOF'
-#!/usr/bin/env bash
-SELF_DIR="$(cd "$(dirname "$0")"/.. && pwd)"
-NODE_BIN="${SELF_DIR}/runtime/bin/node"
-if [ ! -x "${NODE_BIN}" ]; then NODE_BIN="$(command -v node || true)"; fi
-exec "${NODE_BIN}" "${SELF_DIR}/app/dist/cli.js" "$@"
-EOF
-        chmod +x "${TARGET_STAGE}/bin/holy-canvas"
-        ln -sf "holy-canvas" "${TARGET_STAGE}/bin/hcvs"
-
-        tar -czf "${REPO_ROOT}/${OUTPUT_DIR}/${ARCHIVE_NAME}" -C "${TARGET_STAGE}" .
-    fi
-
-    rm -rf "${TARGET_STAGE}"
+# 2. Package Windows release archives (.zip) containing holy-canvas.exe and hcvs.exe
+echo "[INFO] Packaging Windows zip archives..."
+for ARCH in x64 arm64; do
+    ARCHIVE_NAME="holy-canvas-win-${ARCH}.zip"
+    rm -f "${OUTPUT_DIR}/${ARCHIVE_NAME}"
+    WIN_STAGE="$(mktemp -d)"
+    mkdir -p "${WIN_STAGE}/bin"
+    cp "${OUTPUT_DIR}/holy-canvas-win-${ARCH}.exe" "${WIN_STAGE}/bin/holy-canvas.exe"
+    cp "${OUTPUT_DIR}/holy-canvas-win-${ARCH}.exe" "${WIN_STAGE}/bin/hcvs.exe"
+    (cd "${WIN_STAGE}" && zip -qr "${REPO_ROOT}/${OUTPUT_DIR}/${ARCHIVE_NAME}" .)
+    rm -rf "${WIN_STAGE}"
     echo "[SUCCESS] Generated ${OUTPUT_DIR}/${ARCHIVE_NAME}"
 done
 
-echo "[SUCCESS] All standalone packages generated in ${OUTPUT_DIR}/"
+# 3. Package Unix release archives (.tar.gz) containing holy-canvas and hcvs
+echo "[INFO] Packaging Unix tar.gz archives..."
+for PLAT in linux-x64 linux-arm64 darwin-x64 darwin-arm64; do
+    ARCHIVE_NAME="holy-canvas-${PLAT}.tar.gz"
+    rm -f "${OUTPUT_DIR}/${ARCHIVE_NAME}"
+    UNIX_STAGE="$(mktemp -d)"
+    mkdir -p "${UNIX_STAGE}/bin"
+    cp "${OUTPUT_DIR}/holy-canvas-${PLAT}" "${UNIX_STAGE}/bin/holy-canvas"
+    chmod +x "${UNIX_STAGE}/bin/holy-canvas"
+    (cd "${UNIX_STAGE}/bin" && ln -sf holy-canvas hcvs)
+    tar -czf "${REPO_ROOT}/${OUTPUT_DIR}/${ARCHIVE_NAME}" -C "${UNIX_STAGE}" .
+    rm -rf "${UNIX_STAGE}"
+    echo "[SUCCESS] Generated ${OUTPUT_DIR}/${ARCHIVE_NAME}"
+done
+
+echo "[SUCCESS] All standalone releases compiled and packaged successfully in ${OUTPUT_DIR}/"
+ls -lh "${OUTPUT_DIR}/"

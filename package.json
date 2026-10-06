@@ -20,6 +20,8 @@
 	},
 	"scripts": {
 		"build": "tsc",
+		"build:bun": "bun run scripts/build.ts",
+		"compile": "bun run scripts/build.ts --compile",
 		"dev": "tsc --watch",
 		"package": "bash scripts/package-release.sh",
 		"test": "prettier --check . && xo && ava"
@@ -28,18 +30,19 @@
 		"dist"
 	],
 	"dependencies": {
+		"chalk": "^5.2.0",
 		"commander": "^15.0.0",
 		"conf": "^15.1.0",
 		"ink": "^4.1.0",
 		"ink-text-input": "^6.0.0",
-		"react": "^18.2.0"
+		"react": "^18.2.0",
+		"react-devtools-core": "^8.0.0"
 	},
 	"devDependencies": {
 		"@sindresorhus/tsconfig": "^3.0.1",
 		"@types/react": "^18.0.32",
 		"@vdemedes/prettier-config": "^2.0.1",
 		"ava": "^5.2.0",
-		"chalk": "^5.2.0",
 		"eslint-config-xo-react": "^0.27.0",
 		"eslint-plugin-react": "^7.32.2",
 		"eslint-plugin-react-hooks": "^4.6.0",
@@ -61,6 +64,9 @@
 	"xo": {
 		"extends": "xo-react",
 		"prettier": true,
+		"ignores": [
+			"scripts/**"
+		],
 		"rules": {
 			"react/prop-types": "off",
 			"unicorn/expiring-todo-comments": "off",

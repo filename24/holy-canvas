@@ -2,3 +2,4 @@ node_modules
 dist
 canvas-files
 release
+bun.lock

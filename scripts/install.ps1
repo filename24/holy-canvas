@@ -1,6 +1,6 @@
 # ==============================================================================
 # holy-canvas (hcvs) - Standalone Installer for Windows (PowerShell)
-# Installs holy-canvas without requiring a pre-installed Node.js runtime.
+# Installs standalone binary compiled with Bun, with zero pre-installed runtime.
 #
 # Usage (Online):
 #   irm https://raw.githubusercontent.com/filename24/holy-canvas/stable/scripts/install.ps1 | iex
@@ -41,21 +41,13 @@ function Write-ErrorMsg {
     Write-Host "[ERROR] $Message" -ForegroundColor Red
 }
 
-function Show-Banner {
-    Write-Host ""
-    Write-Host "    __         __                       __                   " -ForegroundColor Cyan
-    Write-Host "   / /  ___   / /__ __ ____ ____ ____ _ / /  __ __ ___ ____  " -ForegroundColor Cyan
-    Write-Host "  / _ \/ _ \ / // // //___// __// _ ``// _ \/ // /(_-</___/  " -ForegroundColor Cyan
-    Write-Host "  /_//_/\___//_/ \_, /     \__/ \_,_//_//_/\_,_//___/      " -ForegroundColor Cyan
-    Write-Host "                /___/                                        " -ForegroundColor Cyan
-    Write-Host "  Canvas LMS Terminal Client (hcvs) Windows Installer" -ForegroundColor White
-    Write-Host "  Zero Node.js dependency required" -ForegroundColor Cyan
-    Write-Host ""
-}
+Write-Host ""
+Write-Host "======================================================================" -ForegroundColor Cyan
+Write-Host "holy-canvas (hcvs) - Windows Standalone Installer" -ForegroundColor Cyan
+Write-Host "======================================================================" -ForegroundColor Cyan
+Write-Host ""
 
-Show-Banner
-
-# 1. Detect Architecture
+# 1. Detect architecture
 $Arch = "x64"
 if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64") {
     $Arch = "arm64"
@@ -73,34 +65,7 @@ $AppDir = Join-Path $InstallDir "app"
 
 New-Item -ItemType Directory -Force -Path $InstallDir, $BinDir, $RuntimeDir, $AppDir | Out-Null
 
-# 3. Setup Isolated Standalone Node.js Runtime
-$NodeExe = Join-Path $RuntimeDir "node.exe"
-$NpmCmd = Join-Path $RuntimeDir "npm.cmd"
-
-if (-not (Test-Path $NodeExe)) {
-    Write-Info "Setting up isolated portable Node.js runtime ($NodeVersion) in $RuntimeDir..."
-    $NodeZipName = "node-$NodeVersion-win-$Arch.zip"
-    $NodeZipUrl = "https://nodejs.org/dist/$NodeVersion/$NodeZipName"
-
-    $TempZip = Join-Path $env:TEMP $NodeZipName
-    $TempExtract = Join-Path $env:TEMP "node-extract-$([System.Guid]::NewGuid().ToString())"
-
-    Write-Info "Downloading portable Node.js runtime from $NodeZipUrl..."
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Invoke-WebRequest -Uri $NodeZipUrl -OutFile $TempZip -UseBasicParsing
-
-    Write-Info "Extracting runtime..."
-    Expand-Archive -Path $TempZip -DestinationPath $TempExtract -Force
-    $ExtractedFolder = Get-ChildItem -Path $TempExtract -Directory | Select-Object -First 1
-
-    Copy-Item -Path (Join-Path $ExtractedFolder.FullName "*") -Destination $RuntimeDir -Recurse -Force
-    Remove-Item -Path $TempZip -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path $TempExtract -Recurse -Force -ErrorAction SilentlyContinue
-
-    Write-Success "Portable Node runtime ready (completely isolated, no global changes)."
-}
-
-# 4. Install Application Files
+# Check if running locally in git repository
 $IsLocal = $false
 $ScriptDir = ""
 try {
@@ -120,85 +85,86 @@ if ($ScriptDir) {
     }
 }
 
-if ($IsLocal) {
-    Write-Info "Installing from local repository at $RepoRoot..."
-    Copy-Item -Path $DistDir -Destination $AppDir -Recurse -Force
-    Copy-Item -Path (Join-Path $RepoRoot "package.json") -Destination $AppDir -Force
+# 3. Check for pre-built standalone release package (Built by GitHub CI via Bun)
+$DownloadedRelease = $false
+if (-not $IsLocal) {
+    $ReleaseZipUrl = "https://github.com/$Repo/releases/latest/download/holy-canvas-win-$Arch.zip"
+    $ReleaseExeUrl = "https://github.com/$Repo/releases/latest/download/holy-canvas-win-$Arch.exe"
 
-    Write-Info "Installing standalone production dependencies using portable runtime..."
-    $npmArgs = @("install", "--prefix", $AppDir, "--omit=dev", "--legacy-peer-deps", "--no-audit", "--no-fund", "--loglevel=error")
-    Start-Process -FilePath $NpmCmd -ArgumentList $npmArgs -NoNewWindow -Wait
-} else {
-    $ReleaseUrl = "https://github.com/$Repo/releases/latest/download/holy-canvas-win-$Arch.zip"
-    $DownloadedRelease = $false
-
+    Write-Info "Checking for pre-built standalone release from GitHub CI..."
     $TempReleaseZip = Join-Path $env:TEMP "holy-canvas-release.zip"
-    Write-Info "Checking for pre-built release package..."
     try {
-        Invoke-WebRequest -Uri $ReleaseUrl -OutFile $TempReleaseZip -UseBasicParsing -ErrorAction Stop
-        Write-Info "Extracting pre-built release package..."
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-WebRequest -Uri $ReleaseZipUrl -OutFile $TempReleaseZip -UseBasicParsing -ErrorAction Stop
+        Write-Info "Extracting standalone release package..."
         Expand-Archive -Path $TempReleaseZip -DestinationPath $InstallDir -Force
         Remove-Item -Path $TempReleaseZip -Force -ErrorAction SilentlyContinue
         $DownloadedRelease = $true
+        Write-Success "Standalone release package extracted successfully."
     } catch {
-        $DownloadedRelease = $false
+        # Fallback to direct .exe download if zip is unavailable
+        try {
+            Write-Info "Trying direct standalone executable download..."
+            $TargetExe = Join-Path $BinDir "holy-canvas.exe"
+            Invoke-WebRequest -Uri $ReleaseExeUrl -OutFile $TargetExe -UseBasicParsing -ErrorAction Stop
+            Copy-Item -Path $TargetExe -Destination (Join-Path $BinDir "hcvs.exe") -Force
+            $DownloadedRelease = $true
+            Write-Success "Standalone executable downloaded successfully."
+        } catch {
+            $DownloadedRelease = $false
+        }
     }
+}
 
-    if (-not $DownloadedRelease) {
+# 4. Fallback: Local install or build from source with portable Node
+if (-not $DownloadedRelease) {
+    if ($IsLocal) {
+        Write-Info "Installing from local repository at $RepoRoot..."
+        Copy-Item -Path $DistDir -Destination $AppDir -Recurse -Force
+        Copy-Item -Path (Join-Path $RepoRoot "package.json") -Destination $AppDir -Force
+    } else {
+        $NodeExe = Join-Path $RuntimeDir "node.exe"
+        if (-not (Test-Path $NodeExe)) {
+            Write-Info "Setting up fallback portable Node.js runtime ($NodeVersion)..."
+            $NodeZipName = "node-$NodeVersion-win-$Arch.zip"
+            $NodeZipUrl = "https://nodejs.org/dist/$NodeVersion/$NodeZipName"
+            $TempZip = Join-Path $env:TEMP $NodeZipName
+            $TempExtract = Join-Path $env:TEMP "node-extract-$([System.Guid]::NewGuid().ToString())"
+            Invoke-WebRequest -Uri $NodeZipUrl -OutFile $TempZip -UseBasicParsing
+            Expand-Archive -Path $TempZip -DestinationPath $TempExtract -Force
+            $ExtractedFolder = Get-ChildItem -Path $TempExtract -Directory | Select-Object -First 1
+            Copy-Item -Path (Join-Path $ExtractedFolder.FullName "*") -Destination $RuntimeDir -Recurse -Force
+            Remove-Item -Path $TempZip, $TempExtract -Recurse -Force -ErrorAction SilentlyContinue
+        }
+
         Write-Info "Fetching latest source code from GitHub ($Repo)..."
         $SourceZipUrl = "https://github.com/$Repo/archive/refs/heads/$Branch.zip"
         $TempSourceZip = Join-Path $env:TEMP "holy-canvas-src.zip"
         $TempSourceExtract = Join-Path $env:TEMP "holy-canvas-src-$([System.Guid]::NewGuid().ToString())"
-
         Invoke-WebRequest -Uri $SourceZipUrl -OutFile $TempSourceZip -UseBasicParsing
         Expand-Archive -Path $TempSourceZip -DestinationPath $TempSourceExtract -Force
-
         $SrcRoot = (Get-ChildItem -Path $TempSourceExtract -Directory | Select-Object -First 1).FullName
         Copy-Item -Path (Join-Path $SrcRoot "dist") -Destination $AppDir -Recurse -Force
         Copy-Item -Path (Join-Path $SrcRoot "package.json") -Destination $AppDir -Force
-
-        Remove-Item -Path $TempSourceZip -Force -ErrorAction SilentlyContinue
-        Remove-Item -Path $TempSourceExtract -Recurse -Force -ErrorAction SilentlyContinue
-
-        Write-Info "Installing production dependencies with portable runtime..."
-        $npmArgs = @("install", "--prefix", $AppDir, "--omit=dev", "--legacy-peer-deps", "--no-audit", "--no-fund", "--loglevel=error")
-        Start-Process -FilePath $NpmCmd -ArgumentList $npmArgs -NoNewWindow -Wait
+        Remove-Item -Path $TempSourceZip, $TempSourceExtract -Recurse -Force -ErrorAction SilentlyContinue
     }
-}
 
-# 5. Create Command Wrappers in BinDir
-$CmdContent = @"
+    $CmdContent = @"
 @echo off
 setlocal
 set "ROOT_DIR=%~dp0.."
 set "NODE_EXE=%ROOT_DIR%\runtime\node.exe"
-if not exist "%NODE_EXE%" (
-    set "NODE_EXE=node"
-)
-set "CLI_SCRIPT=%ROOT_DIR%\app\dist\cli.js"
-"%NODE_EXE%" "%CLI_SCRIPT%" %*
+if not exist "%NODE_EXE%" (set "NODE_EXE=node")
+"%NODE_EXE%" "%ROOT_DIR%\app\dist\cli.js" %*
 "@
 
-$Ps1Content = @"
-`$scriptDir = Split-Path -Parent `$MyInvocation.MyCommand.Definition
-`$rootDir = Split-Path -Parent `$scriptDir
-`$nodeExe = Join-Path `$rootDir "runtime\node.exe"
-if (-not (Test-Path `$nodeExe)) {
-    `$nodeExe = "node"
+    if (-not (Test-Path (Join-Path $BinDir "holy-canvas.exe"))) {
+        Set-Content -Path (Join-Path $BinDir "holy-canvas.cmd") -Value $CmdContent -Encoding ASCII
+        Set-Content -Path (Join-Path $BinDir "hcvs.cmd") -Value $CmdContent -Encoding ASCII
+    }
 }
-`$cliScript = Join-Path `$rootDir "app\dist\cli.js"
-& `$nodeExe `$cliScript @args
-"@
 
-# Write holy-canvas.cmd & hcvs.cmd
-Set-Content -Path (Join-Path $BinDir "holy-canvas.cmd") -Value $CmdContent -Encoding ASCII
-Set-Content -Path (Join-Path $BinDir "hcvs.cmd") -Value $CmdContent -Encoding ASCII
-
-# Write holy-canvas.ps1 & hcvs.ps1
-Set-Content -Path (Join-Path $BinDir "holy-canvas.ps1") -Value $Ps1Content -Encoding UTF8
-Set-Content -Path (Join-Path $BinDir "hcvs.ps1") -Value $Ps1Content -Encoding UTF8
-
-# 6. Update User PATH environment variable
+# 5. Update User PATH environment variable
 $UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
 $PathNeedsUpdate = $false
 
@@ -209,16 +175,21 @@ if ($UserPath -split ";" -notcontains $BinDir) {
     $PathNeedsUpdate = $true
 }
 
-# Update current session PATH so command works immediately in this session
 if ($env:Path -split ";" -notcontains $BinDir) {
     $env:Path = "$env:Path;$BinDir"
 }
 
-# 7. Verify Installation
+# 6. Verify Installation
 Write-Info "Verifying installation..."
 $InstalledVersion = ""
 try {
-    $VerifyOutput = & (Join-Path $BinDir "holy-canvas.cmd") --version 2>$null
+    $ExePath = Join-Path $BinDir "holy-canvas.exe"
+    $CmdPath = Join-Path $BinDir "holy-canvas.cmd"
+    if (Test-Path $ExePath) {
+        $VerifyOutput = & $ExePath --version 2>$null
+    } elseif (Test-Path $CmdPath) {
+        $VerifyOutput = & $CmdPath --version 2>$null
+    }
     $InstalledVersion = $VerifyOutput.Trim()
 } catch {
     $InstalledVersion = ""
@@ -230,14 +201,18 @@ if ($InstalledVersion) {
     Write-Warn "Verification check finished. If holy-canvas is not recognized yet, restart your terminal."
 }
 
-# 8. Finished banner & guide
+# 7. Finished banner & guide
 Write-Host ""
 Write-Host "======================================================================" -ForegroundColor Green
 Write-Host "holy-canvas (alias: hcvs) is ready!" -ForegroundColor Green
 Write-Host "======================================================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Installed location: $InstallDir"
-Write-Host "Command binaries:   $BinDir\holy-canvas.cmd, $BinDir\hcvs.cmd"
+if (Test-Path (Join-Path $BinDir "holy-canvas.exe")) {
+    Write-Host "Command binaries:   $BinDir\holy-canvas.exe, $BinDir\hcvs.exe"
+} else {
+    Write-Host "Command binaries:   $BinDir\holy-canvas.cmd, $BinDir\hcvs.cmd"
+}
 Write-Host ""
 
 if ($PathNeedsUpdate) {
