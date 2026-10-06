@@ -29,6 +29,9 @@ importers:
       react-devtools-core:
         specifier: ^8.0.0
         version: 8.0.0
+      yoga-wasm-web:
+        specifier: ^0.3.3
+        version: 0.3.3
     devDependencies:
       '@sindresorhus/tsconfig':
         specifier: ^3.0.1

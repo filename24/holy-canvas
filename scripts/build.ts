@@ -1,8 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call, unicorn/no-process-exit */
 import {existsSync, mkdirSync} from 'node:fs';
-import {resolve} from 'node:path';
+import {createRequire} from 'node:module';
+import {dirname, join, resolve} from 'node:path';
 
 mkdirSync('dist', {recursive: true});
+
+const req = createRequire(import.meta.url);
+let yogaAsmPath = resolve('node_modules/yoga-wasm-web/dist/asm.js');
+try {
+	const yogaPkgJson = req.resolve('yoga-wasm-web/package.json');
+	yogaAsmPath = join(dirname(yogaPkgJson), 'dist', 'asm.js');
+} catch {
+	// Fallback to resolve
+}
 
 // 1. Bundle JavaScript for Node runtime -> dist/cli.js
 console.log('[Bun] Bundling JavaScript for Node runtime -> dist/cli.js');
@@ -16,7 +26,7 @@ const nodeBuild = await Bun.build({
 			name: 'yoga-asm-alias',
 			setup(build) {
 				build.onResolve({filter: /^yoga-wasm-web(\/auto)?$/}, () => {
-					return {path: resolve('node_modules/yoga-wasm-web/dist/asm.js')};
+					return {path: yogaAsmPath};
 				});
 			},
 		},
@@ -63,7 +73,7 @@ if (shouldCompile) {
 					setup(build) {
 						build.onResolve({filter: /^yoga-wasm-web(\/auto)?$/}, () => {
 							return {
-								path: resolve('node_modules/yoga-wasm-web/dist/asm.js'),
+								path: yogaAsmPath,
 							};
 						});
 					},
