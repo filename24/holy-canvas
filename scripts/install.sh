@@ -253,7 +253,7 @@ fi
 # 9. Finished banner & usage guide
 printf "\n"
 printf "======================================================================\n"
-printf "${BOLD}${GREEN}🎉 holy-canvas (alias: hcvs) is ready!${NC}\n"
+printf "${BOLD}${GREEN}holy-canvas (alias: hcvs) is ready!${NC}\n"
 printf "======================================================================\n\n"
 printf "Installed location: %s\n" "${INSTALL_DIR}"
 printf "Binary commands:    %s/holy-canvas, %s/hcvs\n\n" "${BIN_DIR}" "${BIN_DIR}"

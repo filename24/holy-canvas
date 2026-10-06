@@ -1,0 +1,110 @@
+name: CI & Standalone Release
+
+on:
+  push:
+    branches:
+      - main
+      - stable
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - stable
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run linter and tests
+        run: pnpm test
+
+      - name: Build TypeScript
+        run: pnpm build
+
+  release:
+    name: Build & Publish Release
+    needs: test
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build TypeScript
+        run: pnpm build
+
+      - name: Package standalone binary releases
+        run: bash scripts/package-release.sh
+
+      - name: Upload GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: holy-canvas-packages
+          path: release/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish or Update GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="v$(node -p "require('./package.json').version")"
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            TAG="${{ github.ref_name }}"
+          else
+            TAG="$VERSION"
+          fi
+
+          echo "Target release tag: $TAG"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists. Updating release assets..."
+            gh release upload "$TAG" release/* --clobber
+          else
+            echo "Creating new release $TAG..."
+            gh release create "$TAG" release/* \
+              --title "holy-canvas $TAG" \
+              --notes "Automated standalone release for holy-canvas ($TAG). Install via PowerShell irm or Linux/macOS curl." \
+              --latest
+          fi

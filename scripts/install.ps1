@@ -233,7 +233,7 @@ if ($InstalledVersion) {
 # 8. Finished banner & guide
 Write-Host ""
 Write-Host "======================================================================" -ForegroundColor Green
-Write-Host "🎉 holy-canvas (alias: hcvs) is ready!" -ForegroundColor Green
+Write-Host "holy-canvas (alias: hcvs) is ready!" -ForegroundColor Green
 Write-Host "======================================================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Installed location: $InstallDir"
@@ -259,5 +259,5 @@ Write-Host "     hcvs quizzes" -ForegroundColor Cyan
 Write-Host "     hcvs files --all --sync" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "To uninstall:"
-Write-Host "  powershell -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/$Repo/main/scripts/uninstall.ps1 | iex`""
+Write-Host "  powershell -ExecutionPolicy Bypass -Command `"irm https://raw.githubusercontent.com/$Repo/stable/scripts/uninstall.ps1 | iex`""
 Write-Host ""
