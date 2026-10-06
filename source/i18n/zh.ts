@@ -35,21 +35,18 @@ export const zh: Translations = {
 	setup: {
 		title: 'Canvas LMS 设置',
 		domainPrompt: '请输入学校的 Canvas 域名:',
-		domainExample:
-			'例如: canvas.school.edu 或 https://canvas.instructure.com',
+		domainExample: '例如: canvas.school.edu 或 https://canvas.instructure.com',
 		domainLabel: '域名',
 		domainPlaceholder: 'canvas.school.edu',
 		tokenTitle: '输入 API Token',
-		tokenPrompt:
-			'请输入在 Canvas 设置 -> 新建访问令牌中生成的 Token。',
+		tokenPrompt: '请输入在 Canvas 设置 -> 新建访问令牌中生成的 Token。',
 		tokenLabel: 'Token',
 		connecting: '正在连接到',
 		successTitle: '配置完成！',
 		greeting: '你好',
 		domainSaved: '设置已成功保存。',
 		errorTitle: '连接错误',
-		errorRetry:
-			'请使用 holy-canvas setup (或 hcvs setup) 重新尝试。',
+		errorRetry: '请使用 holy-canvas setup (或 hcvs setup) 重新尝试。',
 		invalidToken: 'API Token 无效或已过期。',
 		apiNotFound: '在此域名未找到 Canvas API。',
 		domainUnreachable: '无法连接到该域名，请检查 URL。',
@@ -97,8 +94,7 @@ export const zh: Translations = {
 		syncModeLabel: '同步模式',
 		syncModeOn: '[ON] 仅下载新增或修改的文件 (推荐)',
 		syncModeOff: '[OFF] 重新下载所有文件 (覆盖)',
-		confirmNavHint:
-			'空格/s: 切换同步模式 · Enter/d: 开始下载 · ESC/q: 取消',
+		confirmNavHint: '空格/s: 切换同步模式 · Enter/d: 开始下载 · ESC/q: 取消',
 		selectFilesTitle: '选择文件',
 		selectFilesNavHint:
 			'↑↓/PgUp/PgDn 移动 · 空格 选择/取消 · a 全选 · s 切换同步 · Enter/d 下载 · ESC 返回',

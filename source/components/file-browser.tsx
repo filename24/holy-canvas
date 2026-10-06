@@ -407,7 +407,7 @@ export default function FileBrowserView({
 		return (
 			<Box flexDirection="column" padding={1}>
 				<Text color="red">
-					❌ {strings.common.error}: {error}
+					[{strings.common.error}] {error}
 				</Text>
 				<Text dimColor>{strings.common.backHint}</Text>
 			</Box>
@@ -417,7 +417,7 @@ export default function FileBrowserView({
 	if (loading && phase === 'select-course') {
 		return (
 			<Box padding={1}>
-				<Text color="yellow">⏳ </Text>
+				<Text color="yellow">... </Text>
 				<Text>{strings.courses.loading}</Text>
 			</Box>
 		);
@@ -427,7 +427,7 @@ export default function FileBrowserView({
 		return (
 			<Box padding={1} flexDirection="column">
 				<Box>
-					<Text color="yellow">⏳ </Text>
+					<Text color="yellow">... </Text>
 					<Text bold>{strings.files.loadingAllFiles}</Text>
 				</Box>
 				{loadingProgressText ? (
@@ -476,7 +476,7 @@ export default function FileBrowserView({
 										color={isSelected ? 'yellow' : 'cyan'}
 										bold={isSelected}
 									>
-										{isSelected ? '❯ ' : '  '}
+										{isSelected ? '> ' : '  '}
 										{strings.files.allCoursesOption} ({courses.length})
 									</Text>
 								</Box>
@@ -487,7 +487,7 @@ export default function FileBrowserView({
 						return (
 							<Box key={course.id}>
 								<Text color={isSelected ? 'cyan' : undefined} bold={isSelected}>
-									{isSelected ? '❯ ' : '  '}
+									{isSelected ? '> ' : '  '}
 									{optIndex}. {truncate(course.name, 45)}
 									<Text dimColor> ({course.course_code})</Text>
 								</Text>
@@ -610,8 +610,8 @@ export default function FileBrowserView({
 					return (
 						<Box key={file.id}>
 							<Text color={isSelected ? 'cyan' : undefined} bold={isSelected}>
-								{isSelected ? '❯' : ' '}
-								{isChecked ? ' ☑ ' : ' ☐ '}
+								{isSelected ? '>' : ' '}
+								{isChecked ? ' [x] ' : ' [ ] '}
 								{truncate(file.display_name, 45)}
 								<Text dimColor> ({formatBytes(file.size)})</Text>
 							</Text>

@@ -138,7 +138,7 @@ export default function InteractiveApp() {
 										color={isSelected ? 'cyan' : undefined}
 										bold={isSelected}
 									>
-										{isSelected ? ' ❯ ' : '   '}
+										{isSelected ? ' > ' : '   '}
 										{item.label}
 									</Text>
 								</Box>

@@ -57,12 +57,12 @@
 
 You **do not need Node.js or npm installed on your system** to use `holy-canvas`. The standalone installer downloads an isolated, zero-footprint runtime that does not pollute your global environment.
 
-### 1. Linux / macOS (Standalone Installation without Node.js)
+### 1. Linux / macOS
 
 Run this one-liner in your terminal:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/holy-canvas/holy-canvas/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/filename24/holy-canvas/stable/scripts/install.sh | bash
 ```
 
 Reload your shell configuration to apply the new path:
@@ -71,12 +71,12 @@ Reload your shell configuration to apply the new path:
 source ~/.bashrc   # Or for zsh users: source ~/.zshrc
 ```
 
-### 2. Windows PowerShell (Standalone Installation without Node.js)
+### 2. Windows PowerShell
 
 Open Windows PowerShell and run:
 
 ```powershell
-irm https://raw.githubusercontent.com/holy-canvas/holy-canvas/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/filename24/holy-canvas/stable/scripts/install.ps1 | iex
 ```
 
 Once installed, restart your PowerShell window or execute `hcvs` / `holy-canvas` directly.
@@ -88,7 +88,7 @@ You can also clone the repository and run the installer locally:
 **Linux / macOS:**
 
 ```bash
-git clone https://github.com/holy-canvas/holy-canvas.git
+git clone https://github.com/filename24/holy-canvas.git
 cd holy-canvas
 ./scripts/install.sh
 ```
@@ -96,7 +96,7 @@ cd holy-canvas
 **Windows (PowerShell):**
 
 ```powershell
-git clone https://github.com/holy-canvas/holy-canvas.git
+git clone https://github.com/filename24/holy-canvas.git
 cd holy-canvas
 powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 ```
@@ -127,7 +127,7 @@ hcvs setup
 ```
 
 1. **Enter your Canvas domain**:
-   - e.g., `canvas.harvard.edu`, `canvas.skku.edu`, or `https://canvas.instructure.com`
+   - e.g., `canvas.harvard.edu`, or `https://canvas.instructure.com`
 2. **Enter your API access token**:
    - Log in to your Canvas Web portal -> Profile / Account (top-left) -> **Settings** -> scroll to **Approved Integrations** -> click **+ New Access Token** -> generate and copy the token.
 3. The setup wizard validates your credentials with Canvas in real time and stores them securely.
@@ -261,7 +261,7 @@ hcvs courses --lang ko
 
 Every subcommand supports the `--json` option. When `--json` is supplied, interactive TUI rendering is suppressed, and pure, formatted JSON is streamed to standard output (`stdout`).
 
-This is designed for seamless integration with **AI Agents (LangChain, AutoGen, CrewAI)**, shell scripts, and automated data pipelines:
+This is designed for seamless integration with **AI Agents (Claude code, Codex, Github Copilot etc...)**, shell scripts, and automated data pipelines:
 
 ```bash
 # Parse enrolled courses as JSON
@@ -289,14 +289,14 @@ To completely remove `holy-canvas` from your system, run the uninstallation scri
 **Linux / macOS:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/holy-canvas/holy-canvas/main/scripts/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/filename24/holy-canvas/stable/scripts/uninstall.sh | bash
 # Or locally: ./scripts/uninstall.sh
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-irm https://raw.githubusercontent.com/holy-canvas/holy-canvas/main/scripts/uninstall.ps1 | iex
+irm https://raw.githubusercontent.com/filename24/holy-canvas/stable/scripts/uninstall.ps1 | iex
 # Or locally: powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1
 ```
 
@@ -330,10 +330,10 @@ pnpm run package
 Contributions, bug reports, and feature suggestions are welcome!
 
 1. Fork the repository.
-2. Create your feature branch (`git checkout -b feature/amazing-feature`).
+2. Create your feature branch (`git checkout -b feat/amazing-feature`).
 3. Commit your changes (`git commit -m 'feat: Add amazing feature'`).
 4. Ensure all tests and lint checks pass (`pnpm test`).
-5. Push to the branch (`git push origin feature/amazing-feature`).
+5. Push to the branch (`git push origin feat/amazing-feature`).
 6. Open a Pull Request.
 
 ---

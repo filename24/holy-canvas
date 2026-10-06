@@ -37,8 +37,7 @@ export const es: Translations = {
 	setup: {
 		title: 'Configuración de Canvas LMS',
 		domainPrompt: 'Ingrese el dominio Canvas de su institución:',
-		domainExample:
-			'ej. canvas.harvard.edu o https://canvas.instructure.com',
+		domainExample: 'ej. canvas.harvard.edu o https://canvas.instructure.com',
 		domainLabel: 'Dominio',
 		domainPlaceholder: 'canvas.universidad.es',
 		tokenTitle: 'Ingreso de Token de API',
@@ -53,8 +52,7 @@ export const es: Translations = {
 		errorRetry: 'Intente nuevamente con: holy-canvas setup (o hcvs setup)',
 		invalidToken: 'El token de API no es válido o ha expirado.',
 		apiNotFound: 'No se encontró la API de Canvas en este dominio.',
-		domainUnreachable:
-			'No se puede conectar al dominio. Verifique la URL.',
+		domainUnreachable: 'No se puede conectar al dominio. Verifique la URL.',
 		needSetup: 'Se requiere configuración de Canvas.',
 		runSetupHint: 'Ejecute primero: holy-canvas setup (o hcvs setup)',
 	},
@@ -94,8 +92,7 @@ export const es: Translations = {
 			'Seleccione un curso o descargue todos los archivos del curso a la vez.',
 		allCoursesOption:
 			'[Todos los Cursos] Descarga Masiva de Todos los Archivos',
-		allCoursesConfirmTitle:
-			'Confirmar Descarga de Todos los Cursos',
+		allCoursesConfirmTitle: 'Confirmar Descarga de Todos los Cursos',
 		targetCoursesCount: 'Cursos de destino',
 		collectedFilesCount: 'Archivos recopilados',
 		saveLocation: 'Ubicación de guardado',

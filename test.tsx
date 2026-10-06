@@ -305,8 +305,8 @@ test('computeScrollWindow scrolls and computes indicators accurately', t => {
 test.serial('i18n default language is English', t => {
 	setLanguage('en');
 	t.is(getLanguage(), 'en');
-	t.is(i18nT().menu.title, '🎓 Canvas LMS CLI');
-	t.is(i18nT().menu.itemCourses, '📖 View Courses');
+	t.is(i18nT().menu.title, 'holy-canvas');
+	t.is(i18nT().menu.itemCourses, 'View Courses');
 	t.is(i18nT().common.loading, 'Loading...');
 });
 
@@ -320,25 +320,25 @@ test.serial('i18n supports all 5 languages and switches correctly', t => {
 	// Korean
 	setLanguage('ko');
 	t.is(getLanguage(), 'ko');
-	t.is(i18nT().menu.itemCourses, '📖 수업 목록 보기');
+	t.is(i18nT().menu.itemCourses, '수업 목록 보기');
 	t.is(i18nT().common.loading, '로딩 중...');
 
 	// Spanish
 	setLanguage('es');
 	t.is(getLanguage(), 'es');
-	t.is(i18nT().menu.itemCourses, '📖 Ver Cursos');
+	t.is(i18nT().menu.itemCourses, 'Ver Cursos');
 	t.is(i18nT().common.loading, 'Cargando...');
 
 	// Japanese
 	setLanguage('ja');
 	t.is(getLanguage(), 'ja');
-	t.is(i18nT().menu.itemCourses, '📖 コース一覧を表示');
+	t.is(i18nT().menu.itemCourses, 'コース一覧を表示');
 	t.is(i18nT().common.loading, '読み込み中...');
 
 	// Chinese
 	setLanguage('zh');
 	t.is(getLanguage(), 'zh');
-	t.is(i18nT().menu.itemCourses, '📖 查看课程列表');
+	t.is(i18nT().menu.itemCourses, '查看课程列表');
 	t.is(i18nT().common.loading, '加载中...');
 
 	// Reset back to English
@@ -348,20 +348,20 @@ test.serial('i18n supports all 5 languages and switches correctly', t => {
 
 test('i18n getTranslations returns specified dictionary with fallback', t => {
 	const koDict = getTranslations('ko');
-	t.is(koDict.menu.itemGrades, '📊 성적 확인');
+	t.is(koDict.menu.itemGrades, '성적 확인');
 
 	const esDict = getTranslations('es');
-	t.is(esDict.menu.itemGrades, '📊 Consultar Calificaciones');
+	t.is(esDict.menu.itemGrades, 'Consultar Calificaciones');
 
 	const jaDict = getTranslations('ja');
-	t.is(jaDict.menu.itemGrades, '📊 成績を確認');
+	t.is(jaDict.menu.itemGrades, '成績を確認');
 
 	const zhDict = getTranslations('zh');
-	t.is(zhDict.menu.itemGrades, '📊 查看成绩');
+	t.is(zhDict.menu.itemGrades, '查看成绩');
 
 	// Fallback to English for unknown language code
 	const fallbackDict = getTranslations('fr' as unknown as SupportedLanguage);
-	t.is(fallbackDict.menu.itemGrades, '📊 Check Grades');
+	t.is(fallbackDict.menu.itemGrades, 'Check Grades');
 });
 
 test('isSupportedLanguage validates language codes correctly', t => {

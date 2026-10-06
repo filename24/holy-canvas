@@ -72,7 +72,7 @@ export default function LanguageSelectView({onBack, onLanguageChanged}: Props) {
 				return (
 					<Box key={lang.code}>
 						<Text color={isSelected ? 'cyan' : undefined} bold={isSelected}>
-							{isSelected ? '❯ ' : '  '}
+							{isSelected ? '> ' : '  '}
 							{lang.flag} {lang.nativeName} ({lang.name})
 							{isCurrent ? <Text color="green"> [Current]</Text> : null}
 						</Text>
@@ -83,7 +83,7 @@ export default function LanguageSelectView({onBack, onLanguageChanged}: Props) {
 			<Text> </Text>
 			{savedText ? (
 				<Text color="green" bold>
-					✓ {savedText}
+					[OK] {savedText}
 				</Text>
 			) : (
 				<Text dimColor>↑↓ Navigate · Enter Select · ESC/q Back</Text>

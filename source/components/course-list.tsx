@@ -121,7 +121,7 @@ export default function CourseListView({onBack, onSelectCourse}: Props) {
 				<Box key={course.id}>
 					<Box width={4}>
 						<Text color={index === selectedIndex ? 'cyan' : undefined}>
-							{index === selectedIndex ? '❯' : ' '}
+							{index === selectedIndex ? '>' : ' '}
 							{index + 1}
 						</Text>
 					</Box>

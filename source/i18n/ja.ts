@@ -23,11 +23,9 @@ export const ja: Translations = {
 		itemQuizzes: '小テストのスコアを確認',
 		descQuizzes: '受験した小テストの結果とスコアを確認',
 		itemFiles: 'ファイルダウンロード / 同期',
-		descFiles:
-			'講義資料の一括または個別ダウンロードとスマート同期',
+		descFiles: '講義資料の一括または個別ダウンロードとスマート同期',
 		itemLanguage: '言語設定',
-		descLanguage:
-			'表示言語の変更 (英語、韓国語、スペイン語、日本語、中国語)',
+		descLanguage: '表示言語の変更 (英語、韓国語、スペイン語、日本語、中国語)',
 		itemSetup: '設定変更',
 		descSetup: '所属機関のCanvasドメインおよびAPIトークンの再設定',
 		itemExit: '終了',
@@ -53,8 +51,7 @@ export const ja: Translations = {
 		errorRetry: 'holy-canvas setup (または hcvs setup) で再度お試しください。',
 		invalidToken: 'APIトークンが無効または期限切れです。',
 		apiNotFound: '指定されたドメインにCanvas APIが見つかりません。',
-		domainUnreachable:
-			'ドメインに接続できません。URLをご確認ください。',
+		domainUnreachable: 'ドメインに接続できません。URLをご確認ください。',
 		needSetup: 'Canvasの設定が必要です。',
 		runSetupHint:
 			'先に holy-canvas setup (または hcvs setup) を実行してください。',

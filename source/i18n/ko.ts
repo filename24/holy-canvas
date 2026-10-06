@@ -35,7 +35,8 @@ export const ko: Translations = {
 	setup: {
 		title: 'Canvas LMS 설정',
 		domainPrompt: '학교의 Canvas 도메인을 입력하세요:',
-		domainExample: '예: canvas.school.ac.kr 또는 https://canvas.instructure.com',
+		domainExample:
+			'예: canvas.school.ac.kr 또는 https://canvas.instructure.com',
 		domainLabel: '도메인',
 		domainPlaceholder: 'canvas.school.ac.kr',
 		tokenTitle: 'API 토큰 입력',

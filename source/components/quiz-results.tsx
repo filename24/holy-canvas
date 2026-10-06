@@ -99,7 +99,7 @@ export default function QuizResultsView({courseId, onBack}: Props) {
 		return (
 			<Box padding={1} flexDirection="column">
 				<Box>
-					<Text color="yellow">⏳ </Text>
+					<Text color="yellow">... </Text>
 					<Text>{strings.quizzes.loading}</Text>
 				</Box>
 				{progress ? <Text dimColor>{progress}</Text> : null}
@@ -111,7 +111,7 @@ export default function QuizResultsView({courseId, onBack}: Props) {
 		return (
 			<Box flexDirection="column" padding={1}>
 				<Text color="red">
-					❌ {strings.common.error}: {error}
+					[{strings.common.error}] {error}
 				</Text>
 				<Text dimColor>{strings.common.backHint}</Text>
 			</Box>

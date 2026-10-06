@@ -1,6 +1,7 @@
 import React from 'react';
 import {Box, Text} from 'ink';
 import {formatBytes} from '../utils/formatter.js';
+import {t} from '../i18n/index.js';
 import type {DownloadProgress} from '../utils/download.js';
 
 interface Props {
@@ -14,6 +15,7 @@ export default function DownloadProgressView({
 	totalFiles,
 	completedFiles,
 }: Props) {
+	const strings = t();
 	const pct =
 		totalFiles > 0 ? Math.round((completedFiles / totalFiles) * 100) : 0;
 	const barWidth = 30;
@@ -23,7 +25,7 @@ export default function DownloadProgressView({
 	return (
 		<Box flexDirection="column" padding={1}>
 			<Box marginBottom={1}>
-				<Text bold>📥 파일 다운로드 </Text>
+				<Text bold>[{strings.files.downloadingTitle}] </Text>
 				<Text color={completedFiles === totalFiles ? 'green' : 'cyan'}>
 					[{completedFiles}/{totalFiles}]
 				</Text>
