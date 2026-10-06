@@ -3,7 +3,7 @@
 # Installs holy-canvas without requiring a pre-installed Node.js runtime.
 #
 # Usage (Online):
-#   irm https://raw.githubusercontent.com/holy-canvas/holy-canvas/main/scripts/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/filename24/holy-canvas/stable/scripts/install.ps1 | iex
 #
 # Usage (Local repository):
 #   powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
@@ -13,10 +13,10 @@
 
 [CmdletBinding()]
 param(
-    [string]$Repo = $(if ($env:HOLY_CANVAS_REPO) { $env:HOLY_CANVAS_REPO } else { "holy-canvas/holy-canvas" }),
+    [string]$Repo = $(if ($env:HOLY_CANVAS_REPO) { $env:HOLY_CANVAS_REPO } else { "filename24/holy-canvas" }),
     [string]$InstallDir = $(if ($env:HOLY_CANVAS_HOME) { $env:HOLY_CANVAS_HOME } else { Join-Path $env:USERPROFILE ".holy-canvas" }),
     [string]$NodeVersion = $(if ($env:HOLY_CANVAS_NODE_VERSION) { $env:HOLY_CANVAS_NODE_VERSION } else { "v20.18.3" }),
-    [string]$Branch = $(if ($env:HOLY_CANVAS_BRANCH) { $env:HOLY_CANVAS_BRANCH } else { "main" })
+    [string]$Branch = $(if ($env:HOLY_CANVAS_BRANCH) { $env:HOLY_CANVAS_BRANCH } else { "stable" })
 )
 
 $ErrorActionPreference = "Stop"

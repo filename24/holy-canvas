@@ -106,7 +106,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 If you already have Node.js (>= 16) and pnpm installed:
 
 ```bash
-git clone https://github.com/holy-canvas/holy-canvas.git
+git clone https://github.com/filename24/holy-canvas.git
 cd holy-canvas
 pnpm install
 pnpm build

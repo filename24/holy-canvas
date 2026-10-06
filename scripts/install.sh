@@ -4,7 +4,7 @@
 # Installs holy-canvas without requiring a pre-installed Node.js runtime.
 #
 # Usage (Online):
-#   curl -fsSL https://raw.githubusercontent.com/holy-canvas/holy-canvas/main/scripts/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/filename24/holy-canvas/stable/scripts/install.sh | bash
 #
 # Usage (Local repository):
 #   ./scripts/install.sh
@@ -13,11 +13,11 @@
 set -euo pipefail
 
 # Configuration
-REPO="${HOLY_CANVAS_REPO:-"holy-canvas/holy-canvas"}"
+REPO="${HOLY_CANVAS_REPO:-"filename24/holy-canvas"}"
 INSTALL_DIR="${HOLY_CANVAS_HOME:-"$HOME/.holy-canvas"}"
 BIN_DIR="${HOLY_CANVAS_BIN:-"$HOME/.local/bin"}"
 NODE_VERSION="${HOLY_CANVAS_NODE_VERSION:-"v20.18.3"}"
-BRANCH="${HOLY_CANVAS_BRANCH:-"main"}"
+BRANCH="${HOLY_CANVAS_BRANCH:-"stable"}"
 
 # Text styles
 BOLD='\033[1m'
@@ -274,4 +274,4 @@ printf "     ${CYAN}hcvs grades${NC}\n"
 printf "     ${CYAN}hcvs quizzes${NC}\n"
 printf "     ${CYAN}hcvs files --all --sync${NC}\n\n"
 printf "To uninstall:\n"
-printf "  curl -fsSL https://raw.githubusercontent.com/%s/main/scripts/uninstall.sh | bash\n\n" "$REPO"
+printf "  curl -fsSL https://raw.githubusercontent.com/%s/stable/scripts/uninstall.sh | bash\n\n" "$REPO"

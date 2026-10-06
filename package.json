@@ -2,6 +2,14 @@
 	"name": "holy-canvas",
 	"version": "1.0.0",
 	"license": "AGPL-3.0-only",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/filename24/holy-canvas.git"
+	},
+	"bugs": {
+		"url": "https://github.com/filename24/holy-canvas/issues"
+	},
+	"homepage": "https://github.com/filename24/holy-canvas#readme",
 	"bin": {
 		"holy-canvas": "dist/cli.js",
 		"hcvs": "dist/cli.js"
