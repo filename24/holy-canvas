@@ -6,5 +6,4 @@ if (Test-Path $InstallDir) { Remove-Item -Path $InstallDir -Recurse -Force; Writ
 $BinDir = Join-Path $InstallDir "bin"
 $UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($UserPath -split ";" -contains $BinDir) { $NewPaths = ($UserPath -split ";" | Where-Object { $_ -ne $BinDir }) -join ";"; [Environment]::SetEnvironmentVariable("Path", $NewPaths, "User"); Write-Host "[SUCCESS] Removed $BinDir from User PATH" -ForegroundColor Green }
-Write-Host ""
-Write-Host "holy-canvas (hcvs) has been successfully uninstalled." -ForegroundColor Green
+Write-Host ""; Write-Host "holy-canvas (hcvs) has been successfully uninstalled." -ForegroundColor Green
