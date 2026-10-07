@@ -41,7 +41,10 @@ for ARCH in x64 arm64; do
     WIN_STAGE="$(mktemp -d)"
     mkdir -p "${WIN_STAGE}/bin"
     cp "${OUTPUT_DIR}/holy-canvas-win-${ARCH}.exe" "${WIN_STAGE}/bin/holy-canvas.exe"
-    cp "${OUTPUT_DIR}/holy-canvas-win-${ARCH}.exe" "${WIN_STAGE}/bin/hcvs.exe"
+    cat > "${WIN_STAGE}/bin/hcvs.cmd" << 'EOF'
+@echo off
+"%~dp0holy-canvas.exe" %*
+EOF
     (cd "${WIN_STAGE}" && zip -qr "${REPO_ROOT}/${OUTPUT_DIR}/${ARCHIVE_NAME}" .)
     rm -rf "${WIN_STAGE}"
     echo "[SUCCESS] Generated ${OUTPUT_DIR}/${ARCHIVE_NAME}"

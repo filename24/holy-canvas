@@ -94,6 +94,10 @@ if (-not $IsLocal) {
         Write-Info "Extracting standalone release package..."
         Expand-Archive -Path $TempReleaseZip -DestinationPath $InstallDir -Force
         Remove-Item -Path $TempReleaseZip -Force -ErrorAction SilentlyContinue
+        $LocalExe = Join-Path $BinDir "holy-canvas.exe"
+        if (Test-Path $LocalExe) {
+            Copy-Item -Path $LocalExe -Destination (Join-Path $BinDir "hcvs.exe") -Force -ErrorAction SilentlyContinue
+        }
         $DownloadedRelease = $true
         Write-Success "Standalone release package extracted successfully."
     } catch {

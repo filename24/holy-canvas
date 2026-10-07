@@ -14,11 +14,15 @@ try {
 	// Fallback to resolve
 }
 
+const yogaAutoPath = resolve('scripts/yoga-asm-auto.ts');
+
 // 1. Bundle JavaScript for Node runtime -> dist/cli.js
 console.log('[Bun] Bundling JavaScript for Node runtime -> dist/cli.js');
 const nodeBuild = await Bun.build({
 	entrypoints: ['./source/cli.tsx'],
 	outdir: './dist',
+	minify: true,
+	bytecode: true,
 	target: 'node',
 	naming: 'cli.js',
 	plugins: [
@@ -26,6 +30,9 @@ const nodeBuild = await Bun.build({
 			name: 'yoga-asm-alias',
 			setup(build) {
 				build.onResolve({filter: /^yoga-wasm-web(\/auto)?$/}, () => {
+					return {path: yogaAutoPath};
+				});
+				build.onResolve({filter: /^yoga-wasm-web\/dist\/asm\.js$/}, () => {
 					return {path: yogaAsmPath};
 				});
 			},
@@ -63,6 +70,8 @@ if (shouldCompile) {
 		);
 		const res = await Bun.build({
 			entrypoints: ['./source/cli.tsx'],
+			minify: true,
+			bytecode: true,
 			compile: {
 				target: t.target as any,
 				outfile: t.outfile,
@@ -72,9 +81,10 @@ if (shouldCompile) {
 					name: 'yoga-asm-alias',
 					setup(build) {
 						build.onResolve({filter: /^yoga-wasm-web(\/auto)?$/}, () => {
-							return {
-								path: yogaAsmPath,
-							};
+							return {path: yogaAutoPath};
+						});
+						build.onResolve({filter: /^yoga-wasm-web\/dist\/asm\.js$/}, () => {
+							return {path: yogaAsmPath};
 						});
 					},
 				},
