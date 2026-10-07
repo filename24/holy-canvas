@@ -66,6 +66,7 @@ export interface CanvasFile {
 	updated_at: string;
 	created_at: string;
 	folder_id: number;
+	download_headers?: Record<string, string>;
 }
 
 export interface Folder {

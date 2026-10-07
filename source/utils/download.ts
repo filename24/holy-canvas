@@ -31,8 +31,15 @@ export async function downloadFile(
 ): Promise<void> {
 	await mkdir(dirname(destPath), {recursive: true});
 
+	const headers: Record<string, string> = {
+		Authorization: `Bearer ${token}`,
+	};
+	if (file.download_headers) {
+		Object.assign(headers, file.download_headers);
+	}
+
 	const response = await fetch(file.url, {
-		headers: {Authorization: `Bearer ${token}`},
+		headers,
 		redirect: 'follow',
 	});
 
