@@ -22,7 +22,6 @@ const nodeBuild = await Bun.build({
 	entrypoints: ['./source/cli.tsx'],
 	outdir: './dist',
 	minify: true,
-	bytecode: true,
 	target: 'node',
 	naming: 'cli.js',
 	plugins: [
@@ -71,7 +70,6 @@ if (shouldCompile) {
 		const res = await Bun.build({
 			entrypoints: ['./source/cli.tsx'],
 			minify: true,
-			bytecode: true,
 			compile: {
 				target: t.target as any,
 				outfile: t.outfile,
