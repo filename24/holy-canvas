@@ -9,17 +9,12 @@
 #   powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
 # ==============================================================================
 
-#Requires -Version 5.1
-
-[CmdletBinding()]
-param(
-    [string]$Repo = $(if ($env:HOLY_CANVAS_REPO) { $env:HOLY_CANVAS_REPO } else { "filename24/holy-canvas" }),
-    [string]$InstallDir = $(if ($env:HOLY_CANVAS_HOME) { $env:HOLY_CANVAS_HOME } else { Join-Path $env:USERPROFILE ".holy-canvas" }),
-    [string]$NodeVersion = $(if ($env:HOLY_CANVAS_NODE_VERSION) { $env:HOLY_CANVAS_NODE_VERSION } else { "v20.18.3" }),
-    [string]$Branch = $(if ($env:HOLY_CANVAS_BRANCH) { $env:HOLY_CANVAS_BRANCH } else { "stable" })
-)
-
 $ErrorActionPreference = "Stop"
+
+$Repo = if ($env:HOLY_CANVAS_REPO) { $env:HOLY_CANVAS_REPO } else { "filename24/holy-canvas" }
+$InstallDir = if ($env:HOLY_CANVAS_HOME) { $env:HOLY_CANVAS_HOME } else { Join-Path $env:USERPROFILE ".holy-canvas" }
+$NodeVersion = if ($env:HOLY_CANVAS_NODE_VERSION) { $env:HOLY_CANVAS_NODE_VERSION } else { "v20.18.3" }
+$Branch = if ($env:HOLY_CANVAS_BRANCH) { $env:HOLY_CANVAS_BRANCH } else { "stable" }
 
 function Write-Info {
     param([string]$Message)
