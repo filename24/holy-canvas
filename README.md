@@ -132,6 +132,7 @@ hcvs setup
    - Log in to your Canvas Web portal -> Profile / Account (top-left) -> **Settings** -> scroll to **Approved Integrations** -> click **+ New Access Token** -> generate and copy the token.
 3. The setup wizard validates your credentials with Canvas in real time and stores them securely.
 
+![Example of API access token](./.github/token-generate-example.png)
 ---
 
 ## Usage & Commands
